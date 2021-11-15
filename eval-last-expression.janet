@@ -119,3 +119,54 @@
 (put-in dh/gb-binds
         [:control :enter]
         (comp dh/reset-blink eval-last-expr))
+
+(varfn get-last-expr-2
+  [gb]
+  (def current (point gb))
+  # restore the caret at the end
+  (defer (goto-char gb current)
+    # first look for #
+    (def sharp
+      (dec (gb/search-backward gb |(or (= $ (chr "\n"))
+                                       (= $ (chr "#")))
+                               current)))
+    (when (= (chr "#")
+             (char-after gb sharp))
+      (def expr-cand
+        (string/slice (gb/content gb)
+                      (inc sharp) current))
+      (def p (parser/new))
+      (parser/consume p expr-cand)
+      (var worked true)
+      (try
+        (parser/eof p)
+        ([err]
+          (set worked false)))
+      (when worked
+        # found something so early return
+        (break expr-cand)))
+    # back to our regularly scheduled program
+    (goto-char gb current)
+    (def end (point gb))
+    # find the containing top-level construct - start of region
+    #(backward-line gb)
+    (begin-of-top-level gb)
+    (def start (point gb))
+    # try to detect the last expression
+    (def region
+      (string/slice (gb/content gb) start end))
+    (print region)
+    (lexpr/last-expr region)))
+
+(varfn eval-last-expr-2
+  [gb]
+  (def expr (get-last-expr-2 gb))
+  (evaling/eval-it state/user-env
+                   expr)
+  gb)
+
+(put-in dh/gb-binds
+        [:control :enter]
+        (comp dh/reset-blink eval-last-expr-2))
+
+# (+ 1 1)
