@@ -17,16 +17,18 @@
   (map (fn [c]
          @[:char (keyword (string/from-bytes c))]) s))
 
+(def calc-code
+  ``
+  (+ 2
+     (* 2
+        (* 3)))
+  ``  )
+
 (var commands
   @[;(tap
        :left-control
        ;(tap :end))
-    ;(chars
-       ``
-       (defn my-fn
-         [x]
-         (+ x 1))
-       ``)])
+    ;(chars calc-code)])
 
 (defn run-commands
   [& _]
@@ -43,18 +45,19 @@
     (ev/sleep 0.00001)
     (def expr
       (lexpr/get-last-expr-2 (lexpr/current-gb)))
+    (lexpr/eval-last-expr-2 (lexpr/current-gb))
+    (def result
+      (get (e/pop state/eval-results) :value))
     (with-dyns [:out stdout]
-      (if (= (tracev expr)
-             (tracev
-               ``
-               (defn my-fn
-                 [x]
-                 (+ x 1))
-               ``))
+      (def more-code "(+ 2 3)")
+      (if (and (= (tracev expr)
+                  (tracev calc-code))
+               (= (tracev result)
+                  (tracev (eval-string calc-code))))
         (do
-          (print "test successful\n------------------------------")
+          (print "tests successful\n------------------------------")
           (os/exit 0))
-        (do (print "!!! test failed !!!\n------------------------------")
+        (do (print "!!! tests failed !!!\n------------------------------")
           (os/exit 1))))))
 
 (main/main nil nil "--no-init")
