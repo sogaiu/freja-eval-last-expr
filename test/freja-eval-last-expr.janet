@@ -4,7 +4,7 @@
 (import freja/default-hotkeys :as dh)
 (import freja/state)
 (import freja/new_gap_buffer :as gb)
-(import ../eval-last-expression :as lexpr)
+(import ../freja-eval-last-expr/eval-last-expression :as lexpr)
 
 (defn tap
   [k & body]

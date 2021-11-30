@@ -3,12 +3,12 @@
 (import freja/default-hotkeys :as dh)
 
 (import freja/evaling)
-(import ./last-expression :as lexpr)
+(import ../eval-last-expr/last-expression :as lexpr)
 
 # XXX: for investigation
 (defn current-gb
   []
-  (get-in state/editor-state [:left-state :editor :gb]))
+  (get-in state/editor-state [:stack 0 1 :editor :gb]))
 
 (varfn point
   [gb]
