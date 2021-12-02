@@ -106,10 +106,20 @@
     (* 3 3 3)
     ``
     :after type-home # so evaluation happens at beginning of (* 3 3 3)
-    :done |(do (type-end) (type-enter))
+    :done |(do (type-end) (type-enter) (type-enter))
     #
     :expected 2
-    :expected-expr "(/ 2 1)"}])
+    :expected-expr "(/ 2 1)"}
+   #
+   {:src
+    ``
+    # two top-level forms on one line
+    (- 3 1) (/ 16 2)
+    ``
+    :done |(do (type-end) (type-enter))
+    #
+    :expected 8
+    :expected-expr "(/ 16 2)"}])
 
 (def end-chan
   (ev/chan))
