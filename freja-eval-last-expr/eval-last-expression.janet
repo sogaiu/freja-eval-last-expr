@@ -48,14 +48,12 @@
       (when (> somewhere (first lines))
         (break)))
     (goto-char gb somewhere)
-    # XXX
-    (tracev somewhere)
-    (tracev (def someline-number
-      (gb/current-line-number gb)))
+    (def someline-number
+      (gb/current-line-number gb))
     #
     (backward-line gb)
-    (tracev (def prevline-number
-      (gb/current-line-number gb)))
+    (def prevline-number
+      (gb/current-line-number gb))
     #
     (defer (goto-char gb original)
       (= (dec someline-number)
@@ -93,11 +91,42 @@
           (break))))
     (goto-char gb pos)))
 
+(varfn skip-whitespace-backward
+  "Skips backward while there is whitespace."
+  [gb]
+  (def {:caret caret} gb)
+
+  (when (zero? caret)
+    (break))
+
+  (var target-i (dec caret))
+  (def start-i (dec caret))
+
+  (def f
+    (fiber/new
+      (fn []
+        (gb/index-char-backward-start gb start-i))))
+
+  (loop [[i c] :iterate (resume f)]
+    (when (and (not= (chr "\n") c)
+               (not= (chr " ") c)
+               (not= (chr "\t") c))
+      (set target-i i)
+      (break)))
+
+  (def diff
+    (- target-i start-i))
+
+  # XXX: does this cover all cases?
+  (unless (= start-i target-i)
+    (gb/move-n gb (inc diff))))
+
 (varfn get-last-expr
   [gb]
   (def current (point gb))
   # restore the caret at the end
   (defer (goto-char gb current)
+    (skip-whitespace-backward gb)
     (def end (point gb))
     # find the containing top-level construct - start of region
     #(backward-line gb)
@@ -111,9 +140,9 @@
 
 (varfn eval-last-expr
   [gb]
-  (def expr (get-last-expr gb))
-  (evaling/eval-it state/user-env
-                   expr)
+  (when-let [expr (get-last-expr gb)]
+    (evaling/eval-it state/user-env
+                     expr))
   gb)
 
 (put-in dh/gb-binds
@@ -130,8 +159,9 @@
       (dec (gb/search-backward gb |(or (= $ (chr "\n"))
                                        (= $ (chr "#")))
                                current)))
-    (when (= (chr "#")
-             (char-after gb sharp))
+    (when (and (not= sharp -1)
+               (= (chr "#")
+                  (char-after gb sharp)))
       (def expr-cand
         (string/slice (gb/content gb)
                       (inc sharp) current))
@@ -144,9 +174,10 @@
           (set worked false)))
       (when worked
         # found something so early return
-        (break expr-cand)))
+        (break (string/triml expr-cand))))
     # back to our regularly scheduled program
     (goto-char gb current)
+    (skip-whitespace-backward gb)
     (def end (point gb))
     # find the containing top-level construct - start of region
     #(backward-line gb)
@@ -160,13 +191,11 @@
 
 (varfn eval-last-expr-2
   [gb]
-  (def expr (get-last-expr-2 gb))
-  (evaling/eval-it state/user-env
-                   expr)
+  (when-let [expr (get-last-expr-2 gb)]
+    (evaling/eval-it state/user-env
+                     expr))
   gb)
 
 (put-in dh/gb-binds
         [:control :enter]
         (comp dh/reset-blink eval-last-expr-2))
-
-# (+ 1 1)

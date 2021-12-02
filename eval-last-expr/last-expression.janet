@@ -486,7 +486,11 @@
   (def result
     (find-expr tree target-pos))
   (when result
-    (string/slice trimmed (start result) (end result))))
+    (let [s (start result)
+          e (end result)]
+      # XXX: not addressing underlying cause?
+      (when (<= s e (length trimmed))
+        (string/slice trimmed (start result) (end result))))))
 
 (comment
 
