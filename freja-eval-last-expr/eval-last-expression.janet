@@ -145,9 +145,9 @@
                      expr))
   gb)
 
-(put-in dh/gb-binds
-        [:control :enter]
-        (comp dh/reset-blink eval-last-expr))
+(dh/set-key dh/gb-binds
+            [:control :enter]
+            (comp dh/reset-blink eval-last-expr))
 
 (varfn get-last-expr-2
   [gb]
@@ -196,6 +196,6 @@
                      expr))
   gb)
 
-(put-in dh/gb-binds
-        [:control :enter]
-        (comp dh/reset-blink eval-last-expr-2))
+(dh/set-key dh/gb-binds
+            [:control :enter]
+            (comp dh/reset-blink eval-last-expr-2))
