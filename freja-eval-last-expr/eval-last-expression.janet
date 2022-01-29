@@ -119,7 +119,7 @@
 
   # XXX: does this cover all cases?
   (unless (= start-i target-i)
-    (gb/move-n gb (inc diff))))
+    (gb/move-n gb diff)))
 
 (varfn get-last-expr
   [gb]
