@@ -3,7 +3,7 @@
 (import freja/default-hotkeys :as dh)
 
 (import freja/evaling)
-(import ../eval-last-expr/last-expression :as lexpr)
+(import ./eval-last-expr/last-expression :as lexpr)
 
 # XXX: for investigation
 (defn current-gb
