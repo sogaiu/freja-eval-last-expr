@@ -47,6 +47,6 @@ Note that the code relies on a [Left Margin Convention](https://www.gnu.org/soft
 There are tests than can be run by `jpm test`.
 
 One set of tests runs tests inside freja while the other uses
-[judge-gen](https://github.com/sogaiu/judge-gen) to test supporting
+[janet-usages-as-tests](https://github.com/sogaiu/janet-usages-as-tests) to test supporting
 code.
 
