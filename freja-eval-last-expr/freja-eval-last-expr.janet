@@ -145,10 +145,6 @@
                      expr))
   gb)
 
-(dh/set-key dh/gb-binds
-            [:control :enter]
-            (comp dh/reset-blink eval-last-expr))
-
 (varfn get-last-expr-2
   [gb]
   (def current (point gb))
@@ -196,6 +192,3 @@
                      expr))
   gb)
 
-(dh/set-key dh/gb-binds
-            [:control :enter]
-            (comp dh/reset-blink eval-last-expr-2))
